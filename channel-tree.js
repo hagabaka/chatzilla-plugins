@@ -12,7 +12,6 @@
  *
  * TODO
  *
- * - Duplicate tab context menu to tree items
  * - Use tree labels to display window status like tab labels
  * - Allow the tree to be placed on the left or right
  *
@@ -123,9 +122,20 @@ plugin.enable = function() {
 
   tree.addEventListener("select",
     function(e) {
-      treeItem = plugin.treeView.getItemAtIndex(tree.currentIndex);
+      treeItem = plugin.objectSelectedInTree();
       client.dispatch("set-current-view", {view: treeItem.object});
     }, false);
+
+  plugin.contextId = "context:" + plugin.id;
+  client.menuSpecs[plugin.contextId] = {
+    getContext: function(cx) {
+      if(!cx) cx = new Object();
+      cx.__proto__ = getObjectDetails(plugin.objectSelectedInTree().object);
+      return cx;
+    },
+    items: client.menuSpecs["context:tab"].items}
+  tree.setAttribute("context", plugin.contextId);
+  client.updateMenus();
 
   return true;
 }
@@ -136,6 +146,8 @@ plugin.disable = function() {
   }
   plugin.box.removeChild(plugin.tree);
   plugin.box.removeChild(plugin.splitter);
+  delete client.menuSpecs[plugin.contextId];
+  client.updateMenus();
   return true;
 }
 
@@ -199,6 +211,9 @@ plugin.getTreeParent = function(o) {
   return parent;
 }
 
+plugin.objectSelectedInTree = function() {
+  return plugin.treeView.getItemAtIndex(tree.currentIndex);
+}
 // return an unique and consistent ID for the treeitem for the object based on its
 // unicodeName and that of its parent. the format is "treeitem[parent][name]", and
 // for top level nodes it's "treeitem[][name]"
