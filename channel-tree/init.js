@@ -81,8 +81,8 @@ plugin.enable = function() {
   plugin.treeChildrenNode = treeChildren;
 
   box = document.getElementById("tabpanels-contents-box");
-  box.appendChild(splitter);
-  box.appendChild(tree);
+  box.insertBefore(splitter, box.firstChild);
+  box.insertBefore(tree, box.firstChild);
   plugin.box = box;
   plugin.treeView = tree.view;
 
