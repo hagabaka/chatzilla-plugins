@@ -1,6 +1,23 @@
-// vim: sw=2:et
-
-// chatzilla plugin to list tabs in a treeview
+/* vim: sw=2:et
+ *
+ * channel-tree.js: chatzilla plugin to list tabs in a treeview
+ *
+ * The plugin displays open "tabs" in a treeview, which can replace the tab bar.
+ * you can click on the tree items to switch the current view, and if you use the
+ * tab bar to switch view, the selected item in the tree is updated.
+ *
+ * Check the github repository for updates:
+ * http://github.com/hagabaka/chatzilla-plugins/tree/master
+ * git://github.com/hagabaka/chatzilla-plugins.git
+ *
+ * TODO
+ *
+ * - Duplicate tab context menu to tree items
+ *
+ * BUGS
+ *
+ * - Width of treeview is not persisted
+ */
 
 plugin.id = "channel-tree";
 
