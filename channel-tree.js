@@ -22,6 +22,15 @@
  *   associated with incorrect views
  * - Width of treeview is not persisted
  * - Treeitems at top level are displayed as having children even if they don't
+ * 
+ * AUTHOR
+ *
+ * Yaohan Chen "hagabaka" <yaohan.chen@gmail.com>
+ *
+ * CREDITS
+ *
+ * - Many thanks to Silver, ReadMe, worms, mzz and others on moznet for debug,
+ *   javascript and XUL help
  */
 
 plugin.id = "channel-tree";
