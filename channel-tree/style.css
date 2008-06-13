@@ -1,0 +1,18 @@
+/* based on modern skin */
+
+treechildren:-moz-tree-cell-text(current) {
+    font-weight: bold;
+}
+
+treechildren:-moz-tree-cell-text(superfluous) {
+    color: darkblue;
+}
+
+treechildren:-moz-tree-cell-text(activity) {
+    color: darkgreen;
+}
+
+treechildren:-moz-tree-cell-text(attention) {
+    color: red;
+}
+

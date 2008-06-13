@@ -46,6 +46,11 @@ plugin.init = function(glob) {
 }
 
 plugin.enable = function() {
+  stylesheet = document.createProcessingInstruction("xml-stylesheet",
+    'href="' + plugin.cwd + 'style.css"');
+  document.insertBefore(stylesheet, document.firstChild);
+  plugin.stylesheet = stylesheet;
+
   splitter = document.createElement("splitter");
   grippy = document.createElement("grippy");
   splitter.setAttribute("collapse", "after");
@@ -84,6 +89,7 @@ plugin.enable = function() {
   plugin.addHook("create-tab-for-view",
     function(e) {
       o = e.view;
+      if("treeItemNode" in o) return;
       o.children = o.children || [];
       parent = plugin.getTreeParent(o);
       if(parent) {
@@ -104,12 +110,11 @@ plugin.enable = function() {
       // unregister o as a children of its parent
       if(p && p.children.indexOf(o) < 0)
         p.children = p.children.filter(function(i) {i != o});
+      if(!o.treeItemNode) return;
       // only delete from tree when o is a child node or it has no children
       if(!o.children || o.children.length == 0) {
-        if(o.treeItemNode) {
-          o.treeItemNode.parentNode.removeChild(o.treeItemNode);
-          o.treeItemNode = undefined;
-        }
+        o.treeItemNode.parentNode.removeChild(o.treeItemNode);
+        o.treeItemNode = undefined;
       }
     }, false);
 
@@ -118,6 +123,7 @@ plugin.enable = function() {
       o = e.view;
       index = plugin.treeView.getIndexOfItem(o.treeItemNode);
       plugin.treeView.selection.select(index);
+      plugin.setTreeCellProperty(o.treeItemNode, "current");
     }, false);
 
   tree.addEventListener("select",
@@ -137,10 +143,30 @@ plugin.enable = function() {
   tree.setAttribute("context", plugin.contextId);
   client.updateMenus();
 
+  // decorate setTabState function to make it update property on tree item
+  plugin.originalSetTabState = setTabState;
+  setTabState = function(source, what, callback) {
+    plugin.originalSetTabState(source, what, callback);
+
+    // following block copied from static.js lines 2696-2718 function setTabState
+    if (typeof source != "object")
+    {
+      if (!ASSERT(source in client.viewsArray,
+          "INVALID SOURCE passed to setTabState"))
+      return;
+      source = client.viewsArray[source].source;
+    }
+    tb = source.dispatch("create-tab-for-view", { view: source });
+
+    // copy the just set state on tb to treeItemNode's property
+    plugin.setTreeCellProperty(source.treeItemNode, tb.getAttribute("state"));
+  }
+
   return true;
 }
 
 plugin.disable = function() {
+  setTabState = plugin.originalSetTabState;
   for(var hook in plugin.hooks) {
     client.commandManager.removeHook(hook.name, hook.id, hook.before);
   }
@@ -148,6 +174,7 @@ plugin.disable = function() {
   plugin.box.removeChild(plugin.splitter);
   delete client.menuSpecs[plugin.contextId];
   client.updateMenus();
+  document.removeChild(plugin.stylesheet);
   return true;
 }
 
@@ -175,6 +202,7 @@ plugin.addToTree = function(o, at) {
     at.appendChild(treeItem);
     o.treeItemNode = treeItem;
     treeItem.object = o;
+    plugin.setTreeCellProperty(treeItem, "normal");
   } 
   return treeItem;
 }
@@ -191,6 +219,11 @@ plugin.addToTreeAsParent = function(o) {
     o.treeChildrenNode = treeChildren;
   }
   return treeItem;
+}
+
+// set property for the treecell most directly under the given treeItemNode
+plugin.setTreeCellProperty = function(treeItemNode, property) {
+  treeItemNode.firstChild.firstChild.setAttribute("property", property);
 }
 
 // return parent of an object, in a definition consistent to the tree structure
@@ -214,6 +247,7 @@ plugin.getTreeParent = function(o) {
 plugin.objectSelectedInTree = function() {
   return plugin.treeView.getItemAtIndex(tree.currentIndex);
 }
+
 // return an unique and consistent ID for the treeitem for the object based on its
 // unicodeName and that of its parent. the format is "treeitem[parent][name]", and
 // for top level nodes it's "treeitem[][name]"
