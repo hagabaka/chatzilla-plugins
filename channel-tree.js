@@ -33,6 +33,7 @@ plugin.enable = function() {
   treeCols = document.createElement("treecols");
   treeCol = document.createElement("treecol");
   treeCol.setAttribute("label", "view");
+  treeCol.setAttribute("flex", "1");
 
   tree.appendChild(treeCols);
   treeCols.appendChild(treeCol);
@@ -44,7 +45,8 @@ plugin.enable = function() {
   box = document.getElementById("tabpanels-contents-box");
   box.appendChild(splitter);
   box.appendChild(tree);
-  plugin.box;
+  plugin.box = box;
+  plugin.treeView = tree.view;
 
   plugin.addHook("create-tab-for-view",
     function(e) {
@@ -72,7 +74,7 @@ plugin.enable = function() {
       // only delete from tree when o is a child node or it has no children
       if(!o.children || o.children.length == 0) {
         if(o.treeItemNode) {
-          o.parentNode.removeChild(o.treeItemNode);
+          o.treeItemNode.parentNode.removeChild(o.treeItemNode);
           o.treeItemNode = undefined;
         }
       }
@@ -81,7 +83,8 @@ plugin.enable = function() {
   plugin.addHook("set-current-view",
     function(e) {
       o = e.view;
-      // TODO select the tree item
+      index = plugin.treeView.getIndexOfItem(o.treeItemNode);
+      plugin.treeView.selection.select(index);
     }, false);
   return true;
 }
@@ -118,7 +121,6 @@ plugin.addToTree = function(o, at) {
 
     at.appendChild(treeItem);
     o.treeItemNode = treeItem;
-    o.parentNode = at;
   } 
   return treeItem;
 }
@@ -129,6 +131,7 @@ plugin.addToTreeAsParent = function(o) {
   treeItem = plugin.addToTree(o, plugin.treeChildrenNode);
   if(!("treeChildrenNode" in o)) {
     treeItem.setAttribute("container", "true");
+    treeItem.setAttribute("open", "true");
     treeChildren = document.createElement("treechildren");
     treeItem.appendChild(treeChildren);
     o.treeChildrenNode = treeChildren;
