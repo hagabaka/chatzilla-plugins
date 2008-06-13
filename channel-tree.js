@@ -17,6 +17,7 @@
  * BUGS
  *
  * - Width of treeview is not persisted
+ * - Treeitems at top level are displayed as having children even if they don't
  */
 
 plugin.id = "channel-tree";
