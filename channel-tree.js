@@ -13,6 +13,7 @@
  * TODO
  *
  * - Duplicate tab context menu to tree items
+ * - Use tree labels to display window status like tab labels
  *
  * BUGS
  *
