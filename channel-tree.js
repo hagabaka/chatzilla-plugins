@@ -14,9 +14,12 @@
  *
  * - Duplicate tab context menu to tree items
  * - Use tree labels to display window status like tab labels
+ * - Allow the tree to be placed on the left or right
  *
  * BUGS
  *
+ * - Sometimes, maybe after switching view too frequently, the tree items get
+ *   associated with incorrect views
  * - Width of treeview is not persisted
  * - Treeitems at top level are displayed as having children even if they don't
  */
