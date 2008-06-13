@@ -19,21 +19,24 @@ plugin.enable = function() {
   splitter = document.createElement("splitter");
   grippy = document.createElement("grippy");
   splitter.setAttribute("collapse", "after");
+  splitter.setAttribute("id", "splitter[" + plugin.id + "]");
+  splitter.setAttribute("persist", "collapsed left");
   splitter.appendChild(grippy);
   plugin.splitter = splitter
 
   tree = document.createElement("tree");
-  plugin.tree = tree;
-  plugin.treeId = "tree[" + plugin.id + "]";
-  tree.setAttribute("id", plugin.treeId);
+  tree.setAttribute("id", "tree[" + plugin.id + "]");
   tree.setAttribute("flex", "1");
   tree.setAttribute("hidecolumnpicker", "true");
   tree.setAttribute("seltype", "single");
-  
+  tree.setAttribute("persist", "collapsed width");
+  plugin.tree = tree;
+
   treeCols = document.createElement("treecols");
   treeCol = document.createElement("treecol");
-  treeCol.setAttribute("label", "view");
   treeCol.setAttribute("flex", "1");
+  treeCol.setAttribute("primary", "true");
+  treeCol.setAttribute("hideheader", "true");
 
   tree.appendChild(treeCols);
   treeCols.appendChild(treeCol);
@@ -86,6 +89,13 @@ plugin.enable = function() {
       index = plugin.treeView.getIndexOfItem(o.treeItemNode);
       plugin.treeView.selection.select(index);
     }, false);
+
+  tree.addEventListener("select",
+    function(e) {
+      treeItem = plugin.treeView.getItemAtIndex(tree.currentIndex);
+      client.dispatch("set-current-view", {view: treeItem.object});
+    }, false);
+
   return true;
 }
 
@@ -121,6 +131,7 @@ plugin.addToTree = function(o, at) {
 
     at.appendChild(treeItem);
     o.treeItemNode = treeItem;
+    treeItem.object = o;
   } 
   return treeItem;
 }
