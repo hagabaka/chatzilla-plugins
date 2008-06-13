@@ -46,20 +46,20 @@ plugin.init = function(glob) {
 }
 
 plugin.enable = function() {
-  stylesheet = document.createProcessingInstruction("xml-stylesheet",
+  var stylesheet = document.createProcessingInstruction("xml-stylesheet",
     'href="' + plugin.cwd + 'style.css"');
   document.insertBefore(stylesheet, document.firstChild);
   plugin.stylesheet = stylesheet;
 
-  splitter = document.createElement("splitter");
-  grippy = document.createElement("grippy");
+  var splitter = document.createElement("splitter");
+  var grippy = document.createElement("grippy");
   splitter.setAttribute("collapse", "after");
   splitter.setAttribute("id", "splitter[" + plugin.id + "]");
   splitter.setAttribute("persist", "collapsed left");
   splitter.appendChild(grippy);
   plugin.splitter = splitter;
 
-  tree = document.createElement("tree");
+  var tree = document.createElement("tree");
   tree.setAttribute("id", "tree[" + plugin.id + "]");
   tree.setAttribute("flex", "1");
   tree.setAttribute("hidecolumnpicker", "true");
@@ -67,8 +67,8 @@ plugin.enable = function() {
   tree.setAttribute("persist", "collapsed width");
   plugin.tree = tree;
 
-  treeCols = document.createElement("treecols");
-  treeCol = document.createElement("treecol");
+  var treeCols = document.createElement("treecols");
+  var treeCol = document.createElement("treecol");
   treeCol.setAttribute("flex", "1");
   treeCol.setAttribute("primary", "true");
   treeCol.setAttribute("hideheader", "true");
@@ -76,11 +76,11 @@ plugin.enable = function() {
   tree.appendChild(treeCols);
   treeCols.appendChild(treeCol);
 
-  treeChildren = document.createElement("treechildren");
+  var treeChildren = document.createElement("treechildren");
   tree.appendChild(treeChildren);
   plugin.treeChildrenNode = treeChildren;
 
-  box = document.getElementById("tabpanels-contents-box");
+  var box = document.getElementById("tabpanels-contents-box");
   box.insertBefore(splitter, box.firstChild);
   box.insertBefore(tree, box.firstChild);
   plugin.box = box;
@@ -88,25 +88,14 @@ plugin.enable = function() {
 
   plugin.addHook("create-tab-for-view",
     function(e) {
-      o = e.view;
-      if("treeItemNode" in o) return;
-      o.children = o.children || [];
-      parent = plugin.getTreeParent(o);
-      if(parent) {
-        // register o as parent's child
-        if(parent.children.indexOf(o) < 0)
-          parent.children.push(o);
-        plugin.addToTreeAsParent(parent);
-        plugin.addToTree(o, parent.treeChildrenNode);
-      } else {
-        plugin.addToTreeAsParent(o);
-      }
+      var o = e.view;
+      plugin.handleNewView(o);
     }, false);
 
   plugin.addHook("delete-view",
     function(e) {
-      o = e.view
-      p = plugin.getTreeParent(o);
+      var o = e.view
+      var p = plugin.getTreeParent(o);
       // unregister o as a children of its parent
       if(p && p.children.indexOf(o) < 0)
         p.children = p.children.filter(function(i) {i != o});
@@ -120,8 +109,9 @@ plugin.enable = function() {
 
   plugin.addHook("set-current-view",
     function(e) {
-      o = e.view;
-      index = plugin.treeView.getIndexOfItem(o.treeItemNode);
+      var o = e.view;
+      plugin.handleNewView(o);
+      var index = plugin.treeView.getIndexOfItem(o.treeItemNode);
       plugin.treeView.selection.select(index);
       plugin.setTreeCellProperty(o.treeItemNode, "current");
     }, false);
@@ -146,6 +136,7 @@ plugin.enable = function() {
   // decorate setTabState function to make it update property on tree item
   plugin.originalSetTabState = setTabState;
   setTabState = function(source, what, callback) {
+    plugin.handleNewView(source);
     plugin.originalSetTabState(source, what, callback);
 
     // following block copied from static.js lines 2696-2718 function setTabState
@@ -156,7 +147,7 @@ plugin.enable = function() {
       return;
       source = client.viewsArray[source].source;
     }
-    tb = source.dispatch("create-tab-for-view", { view: source });
+    var tb = source.dispatch("create-tab-for-view", { view: source });
 
     // copy the just set state on tb to treeItemNode's property
     plugin.setTreeCellProperty(source.treeItemNode, tb.getAttribute("state"));
@@ -179,21 +170,37 @@ plugin.disable = function() {
 }
 
 plugin.addHook = function(name, hook, before) {
-  id = plugin.id + "-" + name;
+  var id = plugin.id + "-" + name;
   plugin.hooks.push({"name": name, "id": id, "before": before});
   client.commandManager.addHook(name, hook, id, before);
 }
 
+// if o has not been encountered, add to tree, otherwise do nothing
+plugin.handleNewView = function(o) {
+  if("treeItemNode" in o) return;
+  o.children = o.children || [];
+  parent = plugin.getTreeParent(o);
+  if(parent) {
+    // register o as parent's child
+    if(parent.children.indexOf(o) < 0)
+      parent.children.push(o);
+    plugin.addToTreeAsParent(parent);
+    plugin.addToTree(o, parent.treeChildrenNode);
+  } else {
+    plugin.addToTreeAsParent(o);
+  }
+}
+
 // add an entry to the tree for the object, under the treerows node specified by "at"
 plugin.addToTree = function(o, at) {
-  id = plugin.getIdForObject(o);
-  treeItem = document.getElementById(id);
+  var id = plugin.getIdForObject(o);
+  var treeItem = document.getElementById(id);
   if(!treeItem) {
     // add to tree
     treeItem = document.createElement("treeitem");
     treeItem.setAttribute("id", id);
-    treeRow = document.createElement("treerow");
-    treeCell = document.createElement("treecell");
+    var treeRow = document.createElement("treerow");
+    var treeCell = document.createElement("treecell");
     treeCell.setAttribute("label", o.unicodeName);
 
     treeItem.appendChild(treeRow);
@@ -210,11 +217,11 @@ plugin.addToTree = function(o, at) {
 // add an entry to the tree for the object, at top level, and mark it as a container
 // o.treeChildrenNode is set to the treerows under the added object, where children can be added
 plugin.addToTreeAsParent = function(o) {
-  treeItem = plugin.addToTree(o, plugin.treeChildrenNode);
+  var treeItem = plugin.addToTree(o, plugin.treeChildrenNode);
   if(!("treeChildrenNode" in o)) {
     treeItem.setAttribute("container", "true");
     treeItem.setAttribute("open", "true");
-    treeChildren = document.createElement("treechildren");
+    var treeChildren = document.createElement("treechildren");
     treeItem.appendChild(treeChildren);
     o.treeChildrenNode = treeChildren;
   }
@@ -245,15 +252,15 @@ plugin.getTreeParent = function(o) {
 }
 
 plugin.objectSelectedInTree = function() {
-  return plugin.treeView.getItemAtIndex(tree.currentIndex).object;
+  return plugin.treeView.getItemAtIndex(plugin.tree.currentIndex).object;
 }
 
 // return an unique and consistent ID for the treeitem for the object based on its
 // unicodeName and that of its parent. the format is "treeitem[parent][name]", and
 // for top level nodes it's "treeitem[][name]"
 plugin.getIdForObject = function(o) {
-  p = plugin.getTreeParent(o);
-  parentName = p ? p.unicodeName : "";
+  var p = plugin.getTreeParent(o);
+  var parentName = p ? p.unicodeName : "";
   return "treeitem[" + parentName + "][" + o.unicodeName + "]";
 }
 
