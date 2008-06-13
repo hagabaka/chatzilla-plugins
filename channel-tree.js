@@ -52,7 +52,7 @@ plugin.enable = function() {
   splitter.setAttribute("id", "splitter[" + plugin.id + "]");
   splitter.setAttribute("persist", "collapsed left");
   splitter.appendChild(grippy);
-  plugin.splitter = splitter
+  plugin.splitter = splitter;
 
   tree = document.createElement("tree");
   tree.setAttribute("id", "tree[" + plugin.id + "]");
