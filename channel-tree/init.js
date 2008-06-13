@@ -128,15 +128,15 @@ plugin.enable = function() {
 
   tree.addEventListener("select",
     function(e) {
-      treeItem = plugin.objectSelectedInTree();
-      client.dispatch("set-current-view", {view: treeItem.object});
+      selectedObject = plugin.objectSelectedInTree();
+      client.dispatch("set-current-view", {view: selectedObject});
     }, false);
 
   plugin.contextId = "context:" + plugin.id;
   client.menuSpecs[plugin.contextId] = {
     getContext: function(cx) {
       if(!cx) cx = new Object();
-      cx.__proto__ = getObjectDetails(plugin.objectSelectedInTree().object);
+      cx.__proto__ = getObjectDetails(plugin.objectSelectedInTree());
       return cx;
     },
     items: client.menuSpecs["context:tab"].items}
@@ -245,7 +245,7 @@ plugin.getTreeParent = function(o) {
 }
 
 plugin.objectSelectedInTree = function() {
-  return plugin.treeView.getItemAtIndex(tree.currentIndex);
+  return plugin.treeView.getItemAtIndex(tree.currentIndex).object;
 }
 
 // return an unique and consistent ID for the treeitem for the object based on its
