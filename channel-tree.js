@@ -1,0 +1,165 @@
+// vim: sw=2:et
+
+// chatzilla plugin to list tabs in a treeview
+
+plugin.id = "channel-tree";
+
+plugin.init = function(glob) {
+  plugin.major = 1;
+  plugin.minor = 0;
+  plugin.version = plugin.major + "." + plugin.minor + " (10 Jun 2008)";
+  plugin.description = "List tabs in a tree";
+
+  plugin.hooks = [];
+
+  return "OK";
+}
+
+plugin.enable = function() {
+  splitter = document.createElement("splitter");
+  grippy = document.createElement("grippy");
+  splitter.setAttribute("collapse", "after");
+  splitter.appendChild(grippy);
+  plugin.splitter = splitter
+
+  tree = document.createElement("tree");
+  plugin.tree = tree;
+  plugin.treeId = "tree[" + plugin.id + "]";
+  tree.setAttribute("id", plugin.treeId);
+  tree.setAttribute("flex", "1");
+  tree.setAttribute("hidecolumnpicker", "true");
+  tree.setAttribute("seltype", "single");
+  
+  treeCols = document.createElement("treecols");
+  treeCol = document.createElement("treecol");
+  treeCol.setAttribute("label", "view");
+
+  tree.appendChild(treeCols);
+  treeCols.appendChild(treeCol);
+
+  treeChildren = document.createElement("treechildren");
+  tree.appendChild(treeChildren);
+  plugin.treeChildrenNode = treeChildren;
+
+  box = document.getElementById("tabpanels-contents-box");
+  box.appendChild(splitter);
+  box.appendChild(tree);
+  plugin.box;
+
+  plugin.addHook("create-tab-for-view",
+    function(e) {
+      o = e.view;
+      o.children = o.children || [];
+      parent = plugin.getTreeParent(o);
+      if(parent) {
+        // register o as parent's child
+        if(parent.children.indexOf(o) < 0)
+          parent.children.push(o);
+        plugin.addToTreeAsParent(parent);
+        plugin.addToTree(o, parent.treeChildrenNode);
+      } else {
+        plugin.addToTreeAsParent(o);
+      }
+    }, false);
+
+  plugin.addHook("delete-view",
+    function(e) {
+      o = e.view
+      p = plugin.getTreeParent(o);
+      // unregister o as a children of its parent
+      if(p && p.children.indexOf(o) < 0)
+        p.children = p.children.filter(function(i) {i != o});
+      // only delete from tree when o is a child node or it has no children
+      if(!o.children || o.children.length == 0) {
+        if(o.treeItemNode) {
+          o.parentNode.removeChild(o.treeItemNode);
+          o.treeItemNode = undefined;
+        }
+      }
+    }, false);
+
+  plugin.addHook("set-current-view",
+    function(e) {
+      o = e.view;
+      // TODO select the tree item
+    }, false);
+  return true;
+}
+
+plugin.disable = function() {
+  for(var hook in plugin.hooks) {
+    client.commandManager.removeHook(hook.name, hook.id, hook.before);
+  }
+  plugin.box.removeChild(plugin.tree);
+  plugin.box.removeChild(plugin.splitter);
+  return true;
+}
+
+plugin.addHook = function(name, hook, before) {
+  id = plugin.id + "-" + name;
+  plugin.hooks.push({"name": name, "id": id, "before": before});
+  client.commandManager.addHook(name, hook, id, before);
+}
+
+// add an entry to the tree for the object, under the treerows node specified by "at"
+plugin.addToTree = function(o, at) {
+  id = plugin.getIdForObject(o);
+  treeItem = document.getElementById(id);
+  if(!treeItem) {
+    // add to tree
+    treeItem = document.createElement("treeitem");
+    treeItem.setAttribute("id", id);
+    treeRow = document.createElement("treerow");
+    treeCell = document.createElement("treecell");
+    treeCell.setAttribute("label", o.unicodeName);
+
+    treeItem.appendChild(treeRow);
+    treeRow.appendChild(treeCell);
+
+    at.appendChild(treeItem);
+    o.treeItemNode = treeItem;
+    o.parentNode = at;
+  } 
+  return treeItem;
+}
+
+// add an entry to the tree for the object, at top level, and mark it as a container
+// o.treeChildrenNode is set to the treerows under the added object, where children can be added
+plugin.addToTreeAsParent = function(o) {
+  treeItem = plugin.addToTree(o, plugin.treeChildrenNode);
+  if(!("treeChildrenNode" in o)) {
+    treeItem.setAttribute("container", "true");
+    treeChildren = document.createElement("treechildren");
+    treeItem.appendChild(treeChildren);
+    o.treeChildrenNode = treeChildren;
+  }
+  return treeItem;
+}
+
+// return parent of an object, in a definition consistent to the tree structure
+// IRCNetwork and IRCDCC objects are considered top level
+plugin.getTreeParent = function(o) {
+  // memoized result
+  if("treeParent" in o) return o.treeParent;
+  // objects treated as top level, this line might not be necessary
+  if(["IRCNetwork", "IRCDCC"].indexOf(o.TYPE) >= 0) return undefined;
+
+  parent = o.parent;
+  // skip IRCServer objects and use the network as parent
+  if(parent && parent.TYPE == "IRCServer")
+    parent = parent.parent;
+
+  // memoize the result in o.treeParent;
+  o.treeParent = parent;
+  return parent;
+}
+
+// return an unique and consistent ID for the treeitem for the object based on its
+// unicodeName and that of its parent. the format is "treeitem[parent][name]", and
+// for top level nodes it's "treeitem[][name]"
+plugin.getIdForObject = function(o) {
+  p = plugin.getTreeParent(o);
+  parentName = p ? p.unicodeName : "";
+  return "treeitem[" + parentName + "][" + o.unicodeName + "]";
+}
+
