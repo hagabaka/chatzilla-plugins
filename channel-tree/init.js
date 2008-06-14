@@ -4,7 +4,9 @@
  *
  * The plugin displays open "tabs" in a treeview, which can replace the tab bar.
  * you can click on the tree items to switch the current view, and if you use the
- * tab bar to switch view, the selected item in the tree is updated.
+ * tab bar to switch view, the selected item in the tree is updated. You can right
+ * click tree cells to access the same context menu as tab context menu. Tree labels
+ * can change color to indicate the view status, customizable through CSS.
  *
  * Check the github repository for updates:
  * http://github.com/hagabaka/chatzilla-plugins/tree/master
@@ -12,13 +14,10 @@
  *
  * TODO
  *
- * - Use tree labels to display window status like tab labels
  * - Allow the tree to be placed on the left or right
  *
  * BUGS
  *
- * - Sometimes, maybe after switching view too frequently, the tree items get
- *   associated with incorrect views
  * - Width of treeview is not persisted
  * - Treeitems at top level are displayed as having children even if they don't
  * 
@@ -61,10 +60,9 @@ plugin.enable = function() {
 
   var tree = document.createElement("tree");
   tree.setAttribute("id", "tree[" + plugin.id + "]");
-  tree.setAttribute("flex", "1");
   tree.setAttribute("hidecolumnpicker", "true");
   tree.setAttribute("seltype", "single");
-  tree.setAttribute("persist", "collapsed width");
+  tree.setAttribute("width", "166");
   plugin.tree = tree;
 
   var treeCols = document.createElement("treecols");
@@ -72,7 +70,6 @@ plugin.enable = function() {
   treeCol.setAttribute("flex", "1");
   treeCol.setAttribute("primary", "true");
   treeCol.setAttribute("hideheader", "true");
-  treeCol.setAttribute("persist", "collapsed width");
 
   tree.appendChild(treeCols);
   treeCols.appendChild(treeCol);
