@@ -52,7 +52,7 @@ plugin.enable = function() {
 
   var splitter = document.createElement("splitter");
   var grippy = document.createElement("grippy");
-  splitter.setAttribute("collapse", "after");
+  splitter.setAttribute("collapse", "before");
   splitter.setAttribute("id", "splitter[" + plugin.id + "]");
   splitter.setAttribute("persist", "collapsed left");
   splitter.appendChild(grippy);
