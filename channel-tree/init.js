@@ -101,7 +101,7 @@ plugin.enable = function() {
       // only delete from tree when o is a child node or it has no children
       if(!o.children || o.children.length == 0) {
         o.treeItemNode.parentNode.removeChild(o.treeItemNode);
-        o.treeItemNode = undefined;
+        delete o.treeItemNode;
       }
     }, false);
 
