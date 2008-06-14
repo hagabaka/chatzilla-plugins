@@ -106,6 +106,7 @@ plugin.enable = function() {
       if(!o.children || o.children.length == 0) {
         o.treeItemNode.parentNode.removeChild(o.treeItemNode);
         delete o.treeItemNode;
+        if("childrenNode" in o) delete o.treeChildrenNode;
       }
     }, false);
 
@@ -159,7 +160,7 @@ plugin.enable = function() {
       return;
       source = client.viewsArray[source].source;
     }
-    var tb = source.dispatch("create-tab-for-view", { view: source });
+    var tb = getTabForObject(source, true);
 
     // copy the just set state on tb to treeItemNode's property
     plugin.setTreeCellProperty(source.treeItemNode, tb.getAttribute("state"));
@@ -191,7 +192,7 @@ plugin.addHook = function(name, hook, before) {
 plugin.handleNewView = function(o) {
   if("treeItemNode" in o) return;
   o.children = o.children || [];
-  parent = plugin.getTreeParent(o);
+  var parent = plugin.getTreeParent(o);
   if(parent) {
     // register o as parent's child
     if(parent.children.indexOf(o) < 0)
@@ -213,16 +214,17 @@ plugin.addToTree = function(o, at) {
     treeItem.setAttribute("id", id);
     var treeRow = document.createElement("treerow");
     var treeCell = document.createElement("treecell");
-    treeCell.setAttribute("label", o.unicodeName);
+    treeCell.setAttribute("label", plugin.getLabelForObject(o));
 
     treeItem.appendChild(treeRow);
     treeRow.appendChild(treeCell);
 
     at.appendChild(treeItem);
-    o.treeItemNode = treeItem;
-    treeItem.object = o;
     plugin.setTreeCellProperty(treeItem, "normal");
-  } 
+  }
+  // if the tree item is already there, associate it with the object
+  o.treeItemNode = treeItem;
+  treeItem.object = o;
   return treeItem;
 }
 
@@ -230,13 +232,16 @@ plugin.addToTree = function(o, at) {
 // o.treeChildrenNode is set to the treerows under the added object, where children can be added
 plugin.addToTreeAsParent = function(o) {
   var treeItem = plugin.addToTree(o, plugin.treeChildrenNode);
-  if(!("treeChildrenNode" in o)) {
-    treeItem.setAttribute("container", "true");
-    treeItem.setAttribute("open", "true");
-    var treeChildren = document.createElement("treechildren");
-    treeItem.appendChild(treeChildren);
-    o.treeChildrenNode = treeChildren;
+  treeItem.setAttribute("container", "true");
+  treeItem.setAttribute("open", "true");
+  var treeChildrenId = treeItem.getAttribute("id") + "-treechildren";
+  var treeChildren = document.getElementById(treeChildrenId);
+  if(!treeChildren) {
+    treeChildren = document.createElement("treechildren");
+    treeChildren.setAttribute("id", treeChildrenId);
   }
+  treeItem.appendChild(treeChildren);
+  o.treeChildrenNode = treeChildren;
   return treeItem;
 }
 
@@ -251,11 +256,11 @@ plugin.getTreeParent = function(o) {
   // memoized result
   if("treeParent" in o) return o.treeParent;
   // objects treated as top level, this line might not be necessary
-  if(["IRCNetwork", "IRCDCC"].indexOf(o.TYPE) >= 0) return undefined;
+  if("IRCNetwork" == o.TYPE) return undefined;
 
-  parent = o.parent;
-  // skip IRCServer objects and use the network as parent
-  if(parent && parent.TYPE == "IRCServer")
+  var parent = o.parent;
+  // skip IRCServer and IRCDCC objects and use the network or *client* as parent
+  if(parent && ["IRCServer", "IRCDCC"].indexOf(parent.TYPE) >= 0)
     parent = parent.parent;
 
   // memoize the result in o.treeParent;
@@ -272,7 +277,10 @@ plugin.objectSelectedInTree = function() {
 // for top level nodes it's "treeitem[][name]"
 plugin.getIdForObject = function(o) {
   var p = plugin.getTreeParent(o);
-  var parentName = p ? p.unicodeName : "";
-  return "treeitem[" + parentName + "][" + o.unicodeName + "]";
+  var parentName = p ? plugin.getLabelForObject(p) : "";
+  return "treeitem-" + parentName + "-" + plugin.getLabelForObject(o);
 }
 
+plugin.getLabelForObject = function(o) {
+  return getTabForObject(o, true).getAttribute("label");
+}
