@@ -18,6 +18,8 @@
  *
  * BUGS
  *
+ * - Moving the userlist with the plugin enabled does not work as intended. ChatZilla
+ *   might become unusable or the move does not happen
  * - Width of treeview is not persisted
  * - Treeitems at top level are displayed as having children even if they don't
  * 
