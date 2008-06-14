@@ -99,8 +99,10 @@ plugin.enable = function() {
       var o = e.view
       var p = plugin.getTreeParent(o);
       // unregister o as a children of its parent
-      if(p && p.children.indexOf(o) < 0)
-        p.children = p.children.filter(function(i) {i != o});
+      if(p) {
+        var index = p.children.indexOf(o);
+        if(index >= 0) delete p.children[index];
+      }
       if(!o.treeItemNode) return;
       // only delete from tree when o is a child node or it has no children
       if(!o.children || o.children.length == 0) {
