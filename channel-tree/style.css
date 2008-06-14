@@ -1,18 +1,18 @@
 /* based on modern skin */
 
-tree#channel-tree treechildren:-moz-tree-cell-text(current) {
+tree#channel-tree > treechildren:-moz-tree-cell-text(current) {
     font-weight: bold;
 }
 
-tree#channel-tree treechildren:-moz-tree-cell-text(superfluous) {
+tree#channel-tree > treechildren:-moz-tree-cell-text(superfluous) {
     color: darkblue;
 }
 
-tree#channel-tree treechildren:-moz-tree-cell-text(activity) {
+tree#channel-tree > treechildren:-moz-tree-cell-text(activity) {
     color: darkgreen;
 }
 
-tree#channel-tree treechildren:-moz-tree-cell-text(attention) {
+tree#channel-tree > treechildren:-moz-tree-cell-text(attention) {
     color: red;
 }
 
