@@ -72,6 +72,7 @@ plugin.enable = function() {
   treeCol.setAttribute("flex", "1");
   treeCol.setAttribute("primary", "true");
   treeCol.setAttribute("hideheader", "true");
+  treeCol.setAttribute("persist", "collapsed width");
 
   tree.appendChild(treeCols);
   treeCols.appendChild(treeCol);
@@ -230,7 +231,7 @@ plugin.addToTreeAsParent = function(o) {
 
 // set property for the treecell most directly under the given treeItemNode
 plugin.setTreeCellProperty = function(treeItemNode, property) {
-  treeItemNode.firstChild.firstChild.setAttribute("property", property);
+  treeItemNode.firstChild.firstChild.setAttribute("properties", property);
 }
 
 // return parent of an object, in a definition consistent to the tree structure
