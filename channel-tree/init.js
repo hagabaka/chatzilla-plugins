@@ -123,6 +123,10 @@ plugin.enable = function() {
   tree.addEventListener("select",
     function(e) {
       selectedObject = plugin.objectSelectedInTree();
+      // recreate view when it is closed, this happens for network tabs
+      if(!("messages" in selectedObject)) {
+        client.dispatch("create-tab-for-view", {view: selectedObject});
+      }
       client.dispatch("set-current-view", {view: selectedObject});
     }, false);
 
