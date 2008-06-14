@@ -59,7 +59,7 @@ plugin.enable = function() {
   plugin.splitter = splitter;
 
   var tree = document.createElement("tree");
-  tree.setAttribute("id", "tree[" + plugin.id + "]");
+  tree.setAttribute("id", "channel-tree");
   tree.setAttribute("hidecolumnpicker", "true");
   tree.setAttribute("seltype", "single");
   tree.setAttribute("width", "166");
