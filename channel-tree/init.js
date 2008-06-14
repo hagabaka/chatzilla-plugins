@@ -114,7 +114,13 @@ plugin.enable = function() {
       plugin.handleNewView(o);
       var index = plugin.treeView.getIndexOfItem(o.treeItemNode);
       plugin.treeView.selection.select(index);
-      plugin.setTreeCellProperty(o.treeItemNode, "current");
+      var currentNode = o.treeItemNode;
+      plugin.setTreeCellProperty(currentNode, "current");
+      var lastNode = plugin.lastCurrentTreeItemNode;
+      if(lastNode && lastNode != currentNode) {
+        plugin.setTreeCellProperty(lastNode, "");
+      }
+      plugin.lastCurrentTreeItemNode = currentNode;
     }, false);
 
   tree.addEventListener("select",
