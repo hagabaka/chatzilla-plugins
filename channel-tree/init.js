@@ -18,6 +18,8 @@
  *
  * BUGS
  *
+ * - DCC Windows are not displayed in tree, and with the plugin enabled they are not
+ *   switched to automatically when opened
  * - Moving the userlist with the plugin enabled does not work as intended. ChatZilla
  *   might become unusable or the move does not happen
  * - Width of treeview is not persisted
