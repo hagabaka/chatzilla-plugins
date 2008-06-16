@@ -127,6 +127,7 @@ plugin.enable = function() {
       plugin.lastCurrentTreeItemNode = currentNode;
     }, false);
 
+  // switch view when tree item is selected
   tree.addEventListener("select",
     function(e) {
       selectedObject = plugin.objectSelectedInTree();
@@ -138,6 +139,7 @@ plugin.enable = function() {
       setTimeout('dispatch("focus-input")', 0);
     }, false);
 
+  // duplicate context menu of corresponding tabs to tree item
   plugin.contextId = "context:" + plugin.id;
   client.menuSpecs[plugin.contextId] = {
     getContext: function(cx) {
@@ -185,6 +187,7 @@ plugin.disable = function() {
   return true;
 }
 
+// add a hook and remember it so it's automatically removed on disable
 plugin.addHook = function(name, hook, before) {
   var id = plugin.id + "-" + name;
   plugin.hooks.push({"name": name, "id": id, "before": before});
