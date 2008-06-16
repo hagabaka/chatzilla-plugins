@@ -135,6 +135,7 @@ plugin.enable = function() {
         client.dispatch("create-tab-for-view", {view: selectedObject});
       }
       client.dispatch("set-current-view", {view: selectedObject});
+      setTimeout('dispatch("focus-input")', 0);
     }, false);
 
   plugin.contextId = "context:" + plugin.id;
