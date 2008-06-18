@@ -18,8 +18,10 @@
  *
  * BUGS
  * 
- * - If the plugin is not auto-loaded, open views are not added in the tree until
- *   their state changes
+ * - If the plugin is manually loaded after some views are open, styles on treecells
+ *   are not applied except when they are hovered, or when the view state gets changed
+ *   again. This situation disappears if the tree is redrawn such as when the window
+ *   is resized to make the tree smaller
  * - DCC Windows are not displayed in tree, and with the plugin enabled they are not
  *   switched to automatically when opened
  * - Moving the userlist with the plugin enabled does not work as intended. ChatZilla
@@ -90,6 +92,14 @@ plugin.enable = function() {
   plugin.box = box;
   plugin.treeView = tree.view;
 
+  // add existing tabs into tree
+  for(var i = 0; i < client.viewsArray.length; i++) {
+    var v = client.viewsArray[i];
+    // if(v.tb && v.source)
+    plugin.handleNewView(v.source);
+  }
+  tree.treeBoxObject.clearStyleAndImageCaches();
+
   plugin.addHook("create-tab-for-view",
     function(e) {
       var o = e.view;
@@ -118,15 +128,7 @@ plugin.enable = function() {
     function(e) {
       var o = e.view;
       plugin.handleNewView(o);
-      var index = plugin.treeView.getIndexOfItem(o.treeItemNode);
-      plugin.treeView.selection.select(index);
-      var currentNode = o.treeItemNode;
-      plugin.setTreeCellProperty(currentNode, "current");
-      var lastNode = plugin.lastCurrentTreeItemNode;
-      if(lastNode && lastNode != currentNode) {
-        plugin.setTreeCellProperty(lastNode, "");
-      }
-      plugin.lastCurrentTreeItemNode = currentNode;
+      plugin.setCurrentView(o);
     }, false);
 
   // switch view when tree item is selected
@@ -167,10 +169,8 @@ plugin.enable = function() {
       return;
       source = client.viewsArray[source].source;
     }
-    var tb = getTabForObject(source, true);
 
-    // copy the just set state on tb to treeItemNode's property
-    plugin.setTreeCellProperty(source.treeItemNode, tb.getAttribute("state"));
+    plugin.syncStateForObject(source);
   }
 
   return true;
@@ -228,11 +228,11 @@ plugin.addToTree = function(o, at) {
     treeRow.appendChild(treeCell);
 
     at.appendChild(treeItem);
-    plugin.setTreeCellProperty(treeItem, "normal");
   }
   // if the tree item is already there, associate it with the object
   o.treeItemNode = treeItem;
   treeItem.object = o;
+  plugin.syncStateForObject(o);
   return treeItem;
 }
 
@@ -255,7 +255,12 @@ plugin.addToTreeAsParent = function(o) {
 
 // set property for the treecell most directly under the given treeItemNode
 plugin.setTreeCellProperty = function(treeItemNode, property) {
-  treeItemNode.firstChild.firstChild.setAttribute("properties", property);
+  var treeCell = treeItemNode.firstChild.firstChild
+  var originalProperties = treeCell.getAttribute("properties");
+  var newProperties = originalProperties.replace(
+    /attention|activity|superfluous|channel-tree-current/, "");
+  newProperties += " " + property;
+  treeItemNode.firstChild.firstChild.setAttribute("properties", newProperties);
 }
 
 // return parent of an object, in a definition consistent to the tree structure
@@ -278,6 +283,33 @@ plugin.getTreeParent = function(o) {
 
 plugin.objectSelectedInTree = function() {
   return plugin.treeView.getItemAtIndex(plugin.tree.currentIndex).object;
+}
+
+plugin.setCurrentView = function(o) {
+  var index = plugin.treeView.getIndexOfItem(o.treeItemNode);
+  plugin.treeView.selection.select(index);
+  var currentNode = o.treeItemNode;
+  // we use the property "channel-tree-current" instead of "current", because the
+  // latter is used by XUL. although in practice the two should have the same
+  // effect
+  plugin.setTreeCellProperty(currentNode, "channel-tree-current");
+  var lastNode = plugin.lastCurrentTreeItemNode;
+  if(lastNode && lastNode != currentNode) {
+    plugin.setTreeCellProperty(lastNode, "");
+  }
+  plugin.lastCurrentTreeItemNode = currentNode;
+}
+
+plugin.syncStateForObject = function(o) {
+  var tb = getTabForObject(o, true);
+
+  // copy the just set state on tb to treeItemNode's property
+  state = tb.getAttribute("state");
+  if(state == "current") {
+    plugin.setCurrentView(o);
+  } else {
+    plugin.setTreeCellProperty(o.treeItemNode, state);
+  }
 }
 
 // return an unique and consistent ID for the treeitem for the object based on its

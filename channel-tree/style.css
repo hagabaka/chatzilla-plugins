@@ -1,6 +1,9 @@
 /* based on modern skin */
 
-tree#channel-tree > treechildren:-moz-tree-cell-text(current) {
+/* the "current" property is used by XUL to mark the current node, so channel-tree
+ * uses "channel-tree-current" to mark current view. although they will be usually
+ * the same tree node */
+tree#channel-tree > treechildren:-moz-tree-cell-text(channel-tree-current) {
     font-weight: bold;
 }
 
