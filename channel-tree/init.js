@@ -17,7 +17,9 @@
  * - Allow the tree to be placed on the left or right
  *
  * BUGS
- *
+ * 
+ * - If the plugin is not auto-loaded, open views are not added in the tree until
+ *   their state changes
  * - DCC Windows are not displayed in tree, and with the plugin enabled they are not
  *   switched to automatically when opened
  * - Moving the userlist with the plugin enabled does not work as intended. ChatZilla
@@ -200,10 +202,10 @@ plugin.handleNewView = function(o) {
   o.children = o.children || [];
   var parent = plugin.getTreeParent(o);
   if(parent) {
+    plugin.handleNewView(parent);
     // register o as parent's child
     if(parent.children.indexOf(o) < 0)
       parent.children.push(o);
-    plugin.addToTreeAsParent(parent);
     plugin.addToTree(o, parent.treeChildrenNode);
   } else {
     plugin.addToTreeAsParent(o);
