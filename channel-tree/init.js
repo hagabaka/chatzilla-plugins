@@ -48,6 +48,7 @@ plugin.init = function(glob) {
   plugin.description = "List tabs in a tree";
 
   plugin.hooks = [];
+  plugin.tags = [];
 
   return "OK";
 }
@@ -178,8 +179,13 @@ plugin.enable = function() {
 
 plugin.disable = function() {
   setTabState = plugin.originalSetTabState;
-  for(var hook in plugin.hooks) {
+  for(var i = 0; i < plugin.hooks.length; i++) {
+    var hook = plugin.hooks[i];
     client.commandManager.removeHook(hook.name, hook.id, hook.before);
+  }
+  for(var i = 0; i < plugin.tags.length; i++) {
+    var tag = plugin.tags[i];
+    delete tag.object[tag.name];
   }
   plugin.box.removeChild(plugin.tree);
   plugin.box.removeChild(plugin.splitter);
@@ -190,16 +196,25 @@ plugin.disable = function() {
 }
 
 // add a hook and remember it so it's automatically removed on disable
-plugin.addHook = function(name, hook, before) {
+plugin.addHook = function(name, callback, before) {
   var id = plugin.id + "-" + name;
   plugin.hooks.push({"name": name, "id": id, "before": before});
-  client.commandManager.addHook(name, hook, id, before);
+  client.commandManager.addHook(name, callback, id, before);
+}
+
+// tag a property onto an object. at disable all these tags are automatically
+// removed
+plugin.tagObject = function(o, name, value) {
+  o[name] = value;
+  if(! plugin.tags.some(function(i) {return i.o == o && i.name == name;}) ) {
+    plugin.tags.push({object: o, name: name});
+  }
 }
 
 // if o has not been encountered, add to tree, otherwise do nothing
 plugin.handleNewView = function(o) {
   if("treeItemNode" in o) return;
-  o.children = o.children || [];
+  if(!("children" in o)) plugin.tagObject(o, "children", []);
   var parent = plugin.getTreeParent(o);
   if(parent) {
     plugin.handleNewView(parent);
@@ -230,8 +245,8 @@ plugin.addToTree = function(o, at) {
     at.appendChild(treeItem);
   }
   // if the tree item is already there, associate it with the object
-  o.treeItemNode = treeItem;
-  treeItem.object = o;
+  plugin.tagObject(o, "treeItemNode", treeItem);
+  plugin.tagObject(treeItem, "object", o);
   plugin.syncStateForObject(o);
   return treeItem;
 }
@@ -249,7 +264,7 @@ plugin.addToTreeAsParent = function(o) {
     treeChildren.setAttribute("id", treeChildrenId);
   }
   treeItem.appendChild(treeChildren);
-  o.treeChildrenNode = treeChildren;
+  plugin.tagObject(o, "treeChildrenNode", treeChildren);
   return treeItem;
 }
 
@@ -277,7 +292,7 @@ plugin.getTreeParent = function(o) {
     parent = parent.parent;
 
   // memoize the result in o.treeParent;
-  o.treeParent = parent;
+  plugin.tagObject(o, "treeParent", parent);
   return parent;
 }
 
@@ -297,7 +312,7 @@ plugin.setCurrentView = function(o) {
   if(lastNode && lastNode != currentNode) {
     plugin.setTreeCellProperty(lastNode, "");
   }
-  plugin.lastCurrentTreeItemNode = currentNode;
+  plugin.tagObject(plugin, "lastCurrentTreeItemNode", currentNode);
 }
 
 plugin.syncStateForObject = function(o) {
