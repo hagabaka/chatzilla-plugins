@@ -94,11 +94,9 @@ plugin.enable = function() {
   plugin.treeView = tree.view;
 
   // add existing tabs into tree
-  for(var i = 0; i < client.viewsArray.length; i++) {
-    var v = client.viewsArray[i];
-    // if(v.tb && v.source)
+  client.viewsArray.forEach(function(v) {
     plugin.handleNewView(v.source);
-  }
+  });
   tree.treeBoxObject.clearStyleAndImageCaches();
 
   plugin.addHook("create-tab-for-view",
@@ -179,14 +177,12 @@ plugin.enable = function() {
 
 plugin.disable = function() {
   setTabState = plugin.originalSetTabState;
-  for(var i = 0; i < plugin.hooks.length; i++) {
-    var hook = plugin.hooks[i];
+  plugin.hooks.forEach(function(hook) {
     client.commandManager.removeHook(hook.name, hook.id, hook.before);
-  }
-  for(var i = 0; i < plugin.tags.length; i++) {
-    var tag = plugin.tags[i];
+  });
+  plugin.tags.forEach(function(tag) {
     delete tag.object[tag.name];
-  }
+  });
   plugin.box.removeChild(plugin.tree);
   plugin.box.removeChild(plugin.splitter);
   delete client.menuSpecs[plugin.contextId];
