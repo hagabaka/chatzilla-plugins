@@ -112,7 +112,7 @@ plugin.enable = function() {
       // unregister o as a children of its parent
       if(p) {
         var index = p.children.indexOf(o);
-        if(index >= 0) delete p.children[index];
+        if(index >= 0) delete p.children.splice(index, 1);
       }
       if(!o.treeItemNode) return;
       // only delete from tree when o is a child node or it has no children
