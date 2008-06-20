@@ -1,0 +1,37 @@
+channel-tree.js: chatzilla plugin to list tabs in a treeview
+
+The plugin displays open "tabs" in a treeview, which can replace the tab bar.
+you can click on the tree items to switch the current view, and if you use the
+tab bar to switch view, the selected item in the tree is updated. You can right
+click tree cells to access the same context menu as tab context menu. Tree labels
+can change color to indicate the view status, customizable through CSS.
+
+Check the github repository for updates:
+http://github.com/hagabaka/chatzilla-plugins/tree/master
+git://github.com/hagabaka/chatzilla-plugins.git
+
+TODO
+
+- Allow the tree to be placed on the left or right
+
+BUGS
+
+- If the plugin is manually loaded after some views are open, styles on treecells
+  are not applied except when they are hovered, or when the view state gets changed
+  again. This situation disappears if the tree is redrawn such as when the window
+  is resized to make the tree smaller
+- DCC Windows are not displayed in tree, and with the plugin enabled they are not
+  switched to automatically when opened
+- Moving the userlist with the plugin enabled does not work as intended. ChatZilla
+  might become unusable or the move does not happen
+- Width of treeview is not persisted
+- Treeitems at top level are displayed as having children even if they don't
+
+AUTHOR
+
+Yaohan Chen "hagabaka" <yaohan.chen@gmail.com>
+
+CREDITS
+
+- Many thanks to Silver, ReadMe, worms, mzz and others on moznet for debug,
+  javascript and XUL help
