@@ -12,7 +12,8 @@ git://github.com/hagabaka/chatzilla-plugins.git
 
 TODO
 
-- Allow the tree to be placed on the left or right
+- Add menu entry to hide/show the tree, or adjust its location
+- Use tree-utils instead of DOM tree
 
 BUGS
 
@@ -20,8 +21,6 @@ BUGS
   are not applied except when they are hovered, or when the view state gets changed
   again. This situation disappears if the tree is redrawn such as when the window
   is resized to make the tree smaller
-- DCC Windows are not displayed in tree, and with the plugin enabled they are not
-  switched to automatically when opened
 - Moving the userlist with the plugin enabled does not work as intended. ChatZilla
   might become unusable or the move does not happen
 - Width of treeview is not persisted
