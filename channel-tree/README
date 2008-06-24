@@ -14,6 +14,7 @@ TODO
 
 - Add menu entry to hide/show the tree, or adjust its location
 - Use tree-utils instead of DOM tree
+- Sort tree items by view type
 
 BUGS
 
