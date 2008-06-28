@@ -118,7 +118,9 @@ plugin.enable = function() {
 
     // when callback = true, setTabState is called by itself (the original) and
     // the source parameter is a "viewKey" which I would just avoid handling
-    if(!callback) plugin.syncStateForObject(source);
+    // also no need to resync the state if the state is set on current view
+    if(!callback && source != client.currentObject)
+      plugin.syncStateForObject(source);
   }
 
   return true;
