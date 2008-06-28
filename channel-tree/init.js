@@ -145,6 +145,8 @@ plugin.disable = function() {
   return true;
 }
 
+// --- home made "garbage collecting" helpers ---
+
 // add a hook and remember it so it's automatically removed on disable
 plugin.addHook = function(name, callback, before) {
   var id = plugin.id + "-" + name;
@@ -160,6 +162,8 @@ plugin.tagObject = function(o, name, value) {
     plugin.tags.push({object: o, name: name});
   }
 }
+
+// --- helpers for maintaining representation of views in the tree ---
 
 // if o has not been encountered, add to tree, otherwise do nothing
 plugin.handleNewView = function(o) {
