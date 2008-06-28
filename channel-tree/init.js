@@ -70,14 +70,9 @@ plugin.enable = function() {
     function(e) {
       var o = e.view
       var p = plugin.getTreeParent(o);
-      // unregister o as a children of its parent
-      if(p) {
-        var index = p.children.indexOf(o);
-        if(index >= 0) delete p.children.splice(index, 1);
-      }
       if(!o.treeItemNode) return;
       // only delete from tree when o is a child node or it has no children
-      if(!o.children || o.children.length == 0) {
+      if(plugin.hasNoChildrenInTree(o)) {
         o.treeItemNode.parentNode.removeChild(o.treeItemNode);
         delete o.treeItemNode;
         if("childrenNode" in o) delete o.treeChildrenNode;
@@ -168,13 +163,9 @@ plugin.tagObject = function(o, name, value) {
 // if o has not been encountered, add to tree, otherwise do nothing
 plugin.handleNewView = function(o) {
   if("treeItemNode" in o) return;
-  if(!("children" in o)) plugin.tagObject(o, "children", []);
   var parent = plugin.getTreeParent(o);
   if(parent) {
     plugin.handleNewView(parent);
-    // register o as parent's child
-    if(parent.children.indexOf(o) < 0)
-      parent.children.push(o);
     plugin.addToTree(o, parent.treeChildrenNode);
   } else {
     plugin.addToTreeAsParent(o);
@@ -220,6 +211,12 @@ plugin.addToTreeAsParent = function(o) {
   treeItem.appendChild(treeChildren);
   plugin.tagObject(o, "treeChildrenNode", treeChildren);
   return treeItem;
+}
+
+// returns true if the object's tree item has no child
+plugin.hasNoChildrenInTree = function(o) {
+  var treeChildrenNode = o.treeChildrenNode;
+  return !treeChildrenNode || !treeChildrenNode.hasChildNodes();
 }
 
 // set property for the treecell most directly under the given treeItemNode
