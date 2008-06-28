@@ -121,16 +121,9 @@ plugin.enable = function() {
     plugin.handleNewView(source);
     plugin.originalSetTabState(source, what, callback);
 
-    // following block copied from static.js lines 2696-2718 function setTabState
-    if (typeof source != "object")
-    {
-      if (!ASSERT(source in client.viewsArray,
-          "INVALID SOURCE passed to setTabState"))
-      return;
-      source = client.viewsArray[source].source;
-    }
-
-    plugin.syncStateForObject(source);
+    // when callback = true, setTabState is called by itself (the original) and
+    // the source parameter is a "viewKey" which I would just avoid handling
+    if(!callback) plugin.syncStateForObject(source);
   }
 
   return true;
