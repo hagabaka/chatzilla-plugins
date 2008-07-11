@@ -256,16 +256,12 @@ plugin.objectSelectedInTree = function() {
 plugin.setCurrentView = function(o) {
   var index = plugin.treeView.getIndexOfItem(o.treeItemNode);
   plugin.treeView.selection.select(index);
-  var currentNode = o.treeItemNode;
-  // we use the property "channel-tree-current" instead of "current", because the
-  // latter is used by XUL. although in practice the two should have the same
-  // effect
-  plugin.setTreeCellProperty(currentNode, "channel-tree-current");
-  var lastNode = plugin.lastCurrentTreeItemNode;
-  if(lastNode && lastNode != currentNode) {
-    plugin.setTreeCellProperty(lastNode, "");
+  plugin.syncStateForObject(o);
+  var lastCurrentObject = plugin.lastCurrentObject;
+  if(lastCurrentObject && lastCurrentObject != o) {
+    plugin.syncStateForObject(lastCurrentObject);
   }
-  plugin.tagObject(plugin, "lastCurrentTreeItemNode", currentNode);
+  plugin.tagObject(plugin, "lastCurrentObject", o);
 }
 
 plugin.syncStateForObject = function(o) {
@@ -273,11 +269,13 @@ plugin.syncStateForObject = function(o) {
 
   // copy the just set state on tb to treeItemNode's property
   state = tb.getAttribute("state");
+  // we use the property "channel-tree-current" instead of "current", because the
+  // latter is used by XUL. although in practice the two should have the same
+  // effect
   if(state == "current") {
-    plugin.setCurrentView(o);
-  } else {
-    plugin.setTreeCellProperty(o.treeItemNode, state);
+    state = "channel-tree-current";
   }
+  plugin.setTreeCellProperty(o.treeItemNode, state);
 }
 
 // return an unique and consistent ID for the treeitem for the object based on its
