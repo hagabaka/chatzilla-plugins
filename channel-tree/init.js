@@ -223,20 +223,23 @@ plugin.hasNoChildrenInTree = function(o) {
 
 // set property for the treecell most directly under the given treeItemNode
 plugin.setTreeCellProperty = function(treeItemNode, property) {
-  var treeCell = treeItemNode.firstChild.firstChild
-  var originalProperties = treeCell.getAttribute("properties");
-  var properties = originalProperties.split(/\s+/);
+  var treeRow = treeItemNode.firstChild;
+  var treeCell = treeRow.firstChild;
   var states = ["normal",
                 "superfluous",
                 "activity",
                 "attention",
                 "channel-tree-current"];
-  properties = properties.filter(function(prop) {
-    return states.indexOf(prop) == -1;
+  [treeItemNode, treeRow, treeCell].forEach(function(node) {
+    var originalProperties = node.getAttribute("properties");
+    var properties = originalProperties.split(/\s+/);
+    properties = properties.filter(function(prop) {
+      return states.indexOf(prop) == -1;
+    });
+    properties.push(property);
+    var newProperties = properties.join(" ");
+    node.setAttribute("properties", newProperties);
   });
-  properties.push(property);
-  var newProperties = properties.join(" ");
-  treeItemNode.firstChild.firstChild.setAttribute("properties", newProperties);
 }
 
 // return parent of an object, in a definition consistent to the tree structure
