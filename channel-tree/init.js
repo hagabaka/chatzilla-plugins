@@ -164,7 +164,7 @@ plugin.tagObject = function(o, name, value) {
 
 // if o has not been encountered, add to tree, otherwise do nothing
 plugin.handleNewView = function(o) {
-  if("treeItemNode" in o) return;
+  if(!o || !(o instanceof Object) || ("treeItemNode" in o)) return;
   var parent = plugin.getTreeParent(o);
   if(parent) {
     plugin.handleNewView(parent);
