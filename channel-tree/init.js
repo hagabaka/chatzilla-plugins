@@ -225,9 +225,17 @@ plugin.hasNoChildrenInTree = function(o) {
 plugin.setTreeCellProperty = function(treeItemNode, property) {
   var treeCell = treeItemNode.firstChild.firstChild
   var originalProperties = treeCell.getAttribute("properties");
-  var newProperties = originalProperties.replace(
-    /attention|activity|superfluous|channel-tree-current/, "");
-  newProperties += " " + property;
+  var properties = originalProperties.split(/\s+/);
+  var states = ["normal",
+                "superfluous",
+                "activity",
+                "attention",
+                "channel-tree-current"];
+  properties = properties.filter(function(prop) {
+    return states.indexOf(prop) == -1;
+  });
+  properties.push(property);
+  var newProperties = properties.join(" ");
   treeItemNode.firstChild.firstChild.setAttribute("properties", newProperties);
 }
 
