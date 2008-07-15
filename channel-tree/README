@@ -19,6 +19,8 @@ TODO
 
 BUGS
 
+- The tree item properties are set to "normal" after a while even though they have
+  activity in tabs
 - If the plugin is manually loaded after some views are open, styles on treecells
   are not applied except when they are hovered, or when the view state gets changed
   again. This situation disappears if the tree is redrawn such as when the window
