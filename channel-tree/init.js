@@ -221,22 +221,23 @@ plugin.hasNoChildrenInTree = function(o) {
   return !treeChildrenNode || !treeChildrenNode.hasChildNodes();
 }
 
+plugin.viewStates = ["normal",
+                     "superfluous",
+                     "activity",
+                     "attention",
+                     "channel-tree-current"];
 // set property for the treecell most directly under the given treeItemNode
-plugin.setTreeCellProperty = function(treeItemNode, property) {
-  var treeRow = treeItemNode.firstChild;
+plugin.setStateForObject = function(o, state) {
+  var treeItem = o.treeItemNode;
+  var treeRow = treeItem.firstChild;
   var treeCell = treeRow.firstChild;
-  var states = ["normal",
-                "superfluous",
-                "activity",
-                "attention",
-                "channel-tree-current"];
-  [treeItemNode, treeRow, treeCell].forEach(function(node) {
+  [treeItem, treeRow, treeCell].forEach(function(node) {
     var originalProperties = node.getAttribute("properties");
     var properties = originalProperties.split(/\s+/);
     properties = properties.filter(function(prop) {
-      return states.indexOf(prop) == -1;
+      return plugin.viewStates.indexOf(prop) == -1;
     });
-    properties.push(property);
+    properties.push(state);
     var newProperties = properties.join(" ");
     node.setAttribute("properties", newProperties);
   });
@@ -286,7 +287,7 @@ plugin.syncStateForObject = function(o) {
   if(state == "current") {
     state = "channel-tree-current";
   }
-  plugin.setTreeCellProperty(o.treeItemNode, state);
+  plugin.setStateForObject(o, state);
 }
 
 // return an unique and consistent ID for the treeitem for the object based on its
