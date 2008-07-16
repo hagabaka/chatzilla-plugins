@@ -296,7 +296,7 @@ plugin.setCurrentView = function(o) {
   plugin.syncStateForObject(o);
   var lastCurrentObject = plugin.lastCurrentObject;
   if(lastCurrentObject && lastCurrentObject != o) {
-    plugin.setStateForObject(lastCurrentObject, "normal");
+    plugin.syncStateForObject(lastCurrentObject);
   }
   plugin.tagObject(plugin, "lastCurrentObject", o);
 }
@@ -312,13 +312,7 @@ plugin.syncStateForObject = function(o) {
   if(state == "current") {
     state = "channel-tree-current";
   }
-  // the "normal" state is only synched when the object does not have a state set,
-  // because tabs are set to normal state temporarily in order to achieve flashing
-  // effect
-  if(state != "normal" || !o.stateInitialized) {
-    plugin.setStateForObject(o, state);
-    plugin.tagObject(o, "stateInitialized", true);
-  }
+  plugin.setStateForObject(o, state);
 }
 
 // return an unique and consistent ID for the treeitem for the object based on its
