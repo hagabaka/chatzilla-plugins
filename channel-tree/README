@@ -29,7 +29,6 @@ BUGS
   might become unusable or the move does not happen
 - Width of treeview is not persisted
 - Treeitems at top level are displayed as having children even if they don't
-- The flashing in activity implemented on tabs isn't duplicated on tree items
 
 AUTHOR
 
