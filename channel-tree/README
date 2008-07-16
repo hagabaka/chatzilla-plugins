@@ -38,3 +38,11 @@ CREDITS
 
 - Many thanks to Silver, ReadMe, worms, mzz and others on moznet for debug,
   javascript and XUL help
+- Included icons are taken from the following projects:
+  - channel.png: Crystal SVG icons (actions/irc_channel.png)
+  - network.png: Crystal project theme (actions/network.png)
+  - client.png: Chatzilla (chatzilla-window16.xpm)
+  - user.png: Tango icon library (apps/user-info.png)
+  - dcc-chat.png: Tango icon library (internet-group-chat.png)
+  - dcc-file-transfer.png: Tango icon library (actions/mail-send-receive.png)
+  

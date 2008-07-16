@@ -19,3 +19,28 @@ tree#channel-tree > treechildren:-moz-tree-cell-text(attention) {
     color: red;
 }
 
+tree#channel-tree > treechildren::-moz-tree-image(IRCChannel) {
+    list-style-image: url("channel.png");
+}
+
+tree#channel-tree > treechildren::-moz-tree-image(IRCNetwork) {
+    list-style-image: url("network.png");
+}
+
+tree#channel-tree > treechildren::-moz-tree-image(IRCUser) {
+    list-style-image: url("user.png");
+}
+
+tree#channel-tree > treechildren::-moz-tree-image(IRCClient) {
+    list-style-image: url("client.png");
+}
+
+tree#channel-tree > treechildren::-moz-tree-image(IRCDCCChat) {
+    list-style-image: url("dcc-chat.png");
+}
+
+tree#channel-tree > treechildren::-moz-tree-image(IRCDCCFileTransfer) {
+    list-style-image: url("dcc-file-transfer.png");
+}
+
+
