@@ -10,6 +10,11 @@ Check the github repository for updates:
 http://github.com/hagabaka/chatzilla-plugins/tree/master
 git://github.com/hagabaka/chatzilla-plugins.git
 
+PREFERENCES
+
+- showIcons: if "true" (default), icons are shown before labels in the tree to
+  indicate the type of view (network, channel, user etc).
+
 TODO
 
 - Add menu entry to hide/show the tree, or adjust its location

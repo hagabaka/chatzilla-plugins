@@ -12,6 +12,16 @@ plugin.init = function(glob) {
   plugin.tags = [];
   plugin.nodes = [];
 
+  plugin.prefary = plugin.prefary.concat([
+    ["showIcons", "true"]
+  ]);
+
+  plugin.onPrefChanged = function(name, oldValue, newValue) {
+    if(name == "showIcons") {
+      plugin.applyShowIconPreference();
+    }
+  }
+
   return "OK";
 }
 
@@ -33,6 +43,7 @@ plugin.enable = function() {
   tree.setAttribute("seltype", "single");
   tree.setAttribute("width", "166");
   plugin.tree = tree;
+  plugin.applyShowIconPreference();
 
   var treeCols = document.createElement("treecols");
   var treeCol = document.createElement("treecol");
@@ -326,4 +337,12 @@ plugin.getIdForObject = function(o) {
 
 plugin.getLabelForObject = function(o) {
   return getTabForObject(o, true).getAttribute("label");
+}
+
+plugin.applyShowIconPreference = function() {
+  if(plugin.prefs["showIcons"] == "true") {
+    plugin.tree.setAttribute("class", "showIcons");
+  } else {
+    plugin.tree.setAttribute("class", "noIcons");
+  }
 }
