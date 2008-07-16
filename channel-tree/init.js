@@ -208,6 +208,7 @@ plugin.addToTree = function(o, at) {
   plugin.tagObject(o, "treeItemNode", treeItem);
   plugin.tagObject(treeItem, "object", o);
   plugin.syncStateForObject(o);
+  plugin.editPropertiesForObject(o, [], [o.TYPE]);
   return treeItem;
 }
 
@@ -241,6 +242,10 @@ plugin.viewStates = ["normal",
                      "channel-tree-current"];
 // set property for the treecell most directly under the given treeItemNode
 plugin.setStateForObject = function(o, state) {
+  plugin.editPropertiesForObject(o, plugin.viewStates, [state]);
+}
+
+plugin.editPropertiesForObject = function(o, toRemove, toAdd) {
   var treeItem = o.treeItemNode;
   var treeRow = treeItem.firstChild;
   var treeCell = treeRow.firstChild;
@@ -248,9 +253,11 @@ plugin.setStateForObject = function(o, state) {
     var originalProperties = node.getAttribute("properties");
     var properties = originalProperties.split(/\s+/);
     properties = properties.filter(function(prop) {
-      return plugin.viewStates.indexOf(prop) == -1;
+      return toRemove.indexOf(prop) == -1;
     });
-    properties.push(state);
+    toAdd.forEach(function(prop) {
+      properties.push(toAdd);
+    });
     var newProperties = properties.join(" ");
     node.setAttribute("properties", newProperties);
   });
