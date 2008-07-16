@@ -10,6 +10,7 @@ plugin.init = function(glob) {
 
   plugin.hooks = [];
   plugin.tags = [];
+  plugin.nodes = [];
 
   return "OK";
 }
@@ -18,7 +19,6 @@ plugin.enable = function() {
   var stylesheet = document.createProcessingInstruction("xml-stylesheet",
     'href="' + plugin.cwd + 'style.css"');
   document.insertBefore(stylesheet, document.firstChild);
-  plugin.stylesheet = stylesheet;
 
   var splitter = document.createElement("splitter");
   var grippy = document.createElement("grippy");
@@ -26,7 +26,6 @@ plugin.enable = function() {
   splitter.setAttribute("id", "splitter[" + plugin.id + "]");
   splitter.setAttribute("persist", "collapsed left");
   splitter.appendChild(grippy);
-  plugin.splitter = splitter;
 
   var tree = document.createElement("tree");
   tree.setAttribute("id", "channel-tree");
@@ -49,9 +48,8 @@ plugin.enable = function() {
   plugin.treeChildrenNode = treeChildren;
 
   var box = document.getElementById("tabpanels-contents-box");
-  box.insertBefore(splitter, box.firstChild);
-  box.insertBefore(tree, box.firstChild);
-  plugin.box = box;
+  plugin.insertNode(splitter, box, box.firstChild);
+  plugin.insertNode(tree, box, box.firstChild);
   plugin.treeView = tree.view;
 
   // add existing tabs into tree
@@ -134,11 +132,13 @@ plugin.disable = function() {
   plugin.tags.forEach(function(tag) {
     delete tag.object[tag.name];
   });
-  plugin.box.removeChild(plugin.tree);
-  plugin.box.removeChild(plugin.splitter);
+  plugin.nodes.forEach(function(node) {
+    if(node.parentNode) {
+      node.parentNode.removeChild(node);
+    }
+  });
   delete client.menuSpecs[plugin.contextId];
   client.updateMenus();
-  document.removeChild(plugin.stylesheet);
   return true;
 }
 
@@ -158,6 +158,19 @@ plugin.tagObject = function(o, name, value) {
   if(! plugin.tags.some(function(i) {return i.o == o && i.name == name;}) ) {
     plugin.tags.push({object: o, name: name});
   }
+}
+
+// add a node in the DOM. it must have an ID and any existing node with the same ID
+// is removed (to clean up left overs from crashed plugin). at disable the node is
+// removed
+plugin.insertNode = function(node, under, before) {
+  var existing;
+  var id = node.getAttribute("id");
+  while(existing = document.getElementById(id)) {
+    existing.parentNode.removeChild(existing);
+  }
+  under.insertBefore(node, before);
+  plugin.nodes.push(node);
 }
 
 // --- helpers for maintaining representation of views in the tree ---
