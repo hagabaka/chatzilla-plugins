@@ -13,17 +13,22 @@ plugin.init = function(glob) {
   plugin.nodes = [];
 
   plugin.prefary = plugin.prefary.concat([
-    ["showIcons", "true"]
+    ["showIcons", "true"],["treeAtLeft","true"]
   ]);
 
   plugin.onPrefChanged = function(name, oldValue, newValue) {
     if(name == "showIcons") {
       plugin.applyShowIconPreference();
     }
+    else if(name == "treeAtLeft") {
+      plugin.applyTreeSidePreference();
+    }
   }
 
   return "OK";
 }
+
+plugin.startup = true;
 
 plugin.enable = function() {
   var stylesheet = document.createProcessingInstruction("xml-stylesheet",
@@ -59,9 +64,8 @@ plugin.enable = function() {
   plugin.treeChildrenNode = treeChildren;
 
   var box = document.getElementById("tabpanels-contents-box");
-  plugin.insertNode(splitter, box, box.firstChild);
-  plugin.insertNode(tree, box, box.firstChild);
-  plugin.treeView = tree.view;
+  plugin.putTree(splitter,tree,box);
+  plugin.startup = false;
 
   // add existing tabs into tree
   client.viewsArray.forEach(function(v) {
@@ -186,7 +190,17 @@ plugin.insertNode = function(node, under, before) {
     existing.parentNode.removeChild(existing);
   }
   under.insertBefore(node, before);
-  plugin.nodes.push(node);
+  if(plugin.startup) plugin.nodes.push(node);
+}
+
+plugin.appendNode = function(node, under) {
+  var existing;
+  var id = node.getAttribute("id");
+  while(existing = document.getElementById(id)) {
+    existing.parentNode.removeChild(existing);
+  }
+  under.appendChild(node);
+  if(plugin.startup) plugin.nodes.push(node);
 }
 
 // --- helpers for maintaining representation of views in the tree ---
@@ -344,5 +358,26 @@ plugin.applyShowIconPreference = function() {
     plugin.tree.setAttribute("class", "showIcons");
   } else {
     plugin.tree.setAttribute("class", "noIcons");
+  }
+}
+
+plugin.applyTreeSidePreference = function(){
+  var splitter = document.getElementById("splitter[" + plugin.id + "]");
+  var tree = document.getElementById("channel-tree");
+  var box = document.getElementById("tabpanels-contents-box");
+  plugin.putTree(splitter,tree,box);
+}
+
+plugin.putTree = function(splitter,tree,box){
+  if(plugin.prefs["treeAtLeft"] == "true"){
+    splitter.setAttribute("collapse", "before");
+    plugin.insertNode(splitter, box, box.firstChild);
+    plugin.insertNode(tree, box, box.firstChild);
+    plugin.treeView = tree.view;
+  }else{
+    splitter.setAttribute("collapse", "after");
+    plugin.appendNode(splitter, box);
+    plugin.appendNode(tree, box);
+    plugin.treeView = tree.view;
   }
 }
