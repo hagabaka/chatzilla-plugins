@@ -327,17 +327,19 @@ plugin.setCurrentView = function(o) {
 }
 
 plugin.syncStateForObject = function(o) {
-  var tb = getTabForObject(o, true);
+  var tb;
+  if(tb = getTabForObject(o, false)) {
 
-  // copy the just set state on tb to treeItemNode's property
-  state = tb.getAttribute("state");
-  // we use the property "channel-tree-current" instead of "current", because the
-  // latter is used by XUL. although in practice the two should have the same
-  // effect
-  if(state == "current") {
-    state = "channel-tree-current";
+    // copy the just set state on tb to treeItemNode's property
+    state = tb.getAttribute("state");
+    // we use the property "channel-tree-current" instead of "current", because the
+    // latter is used by XUL. although in practice the two should have the same
+    // effect
+    if(state == "current") {
+      state = "channel-tree-current";
+    }
+    plugin.setStateForObject(o, state);
   }
-  plugin.setStateForObject(o, state);
 }
 
 // return an unique and consistent ID for the treeitem for the object based on its
