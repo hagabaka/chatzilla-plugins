@@ -15,6 +15,9 @@ PREFERENCES
 - showIcons: if "true" (default), icons are shown before labels in the tree to
   indicate the type of view (network, channel, user etc).
 
+- treeAtLeft: if "true" (default), the channel tree is shown on the left side of
+  the window. If "false", on the right.
+
 TODO
 
 - Add menu entry to hide/show the tree, or adjust its location
