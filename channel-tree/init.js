@@ -142,6 +142,39 @@ plugin.enable = function() {
     plugin.syncStateForObject(source);
   });
 
+  plugin.decorateFunction(window, "updateUserlistSide",
+  function(originalUpdateUserlistSide, shouldBeLeft) {
+    var listParent = document.getElementById("tabpanels-contents-box");
+    var userListBox = document.getElementById("user-list-box");
+    var mainSplitter = document.getElementById("main-splitter");
+    var browserBox = document.getElementById("browser-box");
+
+    if (shouldBeLeft) { // Move from right to left.
+
+      mainSplitter.setAttribute("collapse", "before");
+      listParent.insertBefore(mainSplitter, browserBox);
+      listParent.insertBefore(userListBox, mainSplitter);
+
+    } else { // Move from left to right.
+
+      mainSplitter.setAttribute("collapse", "after");
+      var next;
+      if (next = browserBox.nextSibling) { // browser-box is NOT at far-right
+
+        listParent.insertBefore(mainSplitter, next);
+        listParent.insertBefore(userListBox, next);
+
+      } else { // browser-box is at far-right
+
+        listParent.appendChild(mainSplitter);
+        listParent.appendChild(userListBox);
+      }
+    }
+    var userlist = document.getElementById("user-list")
+    if (client.currentObject && (client.currentObject.TYPE == "IRCChannel"))
+      userlist.view = client.currentObject.userList;
+  });
+
   return true;
 }
 
