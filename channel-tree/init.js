@@ -11,6 +11,7 @@ plugin.init = function(glob) {
   plugin.hooks = [];
   plugin.tags = [];
   plugin.nodes = [];
+  plugin.decorations = [];
 
   plugin.prefary = plugin.prefary.concat([
     ["showIcons", "true"],["treeAtLeft","true"]
@@ -124,10 +125,10 @@ plugin.enable = function() {
   client.updateMenus();
 
   // decorate setTabState function to make it update property on tree item
-  plugin.originalSetTabState = setTabState;
-  setTabState = function(source, what, callback) {
+  plugin.decorateFunction(window, "setTabState",
+  function(originalSetTabState, source, what, callback) {
     plugin.handleNewView(source);
-    plugin.originalSetTabState(source, what, callback);
+    originalSetTabState(source, what, callback);
 
     // following block copied from static.js lines 2696-2718 function setTabState
     if (typeof source != "object")
@@ -139,13 +140,15 @@ plugin.enable = function() {
     }
 
     plugin.syncStateForObject(source);
-  }
+  });
 
   return true;
 }
 
 plugin.disable = function() {
-  setTabState = plugin.originalSetTabState;
+  plugin.decorations.forEach(function(decoration) {
+    decoration.object[decoration.functionName] = decoration.originalFunction;  
+  });
   plugin.hooks.forEach(function(hook) {
     client.commandManager.removeHook(hook.name, hook.id, hook.before);
   });
@@ -177,6 +180,22 @@ plugin.tagObject = function(o, name, value) {
   o[name] = value;
   if(! plugin.tags.some(function(i) {return i.o == o && i.name == name;}) ) {
     plugin.tags.push({object: o, name: name});
+  }
+}
+
+// decorate/wrap/monkeypatch a function of an object. newFunction should be
+// a function which accepts the original function as its first argument, followed
+// by the arguments expected by the original function. when plugin is disabled,
+// the original function is restored.
+plugin.decorateFunction = function(object, functionName, newFunction) {
+  var originalFunction = object[functionName];
+  plugin.decorations.push({
+    object: object, 
+    functionName: functionName, 
+    originalFunction: originalFunction
+  });
+  object[functionName] = function(arguments) {
+    newFunction(originalFunction, arguments); 
   }
 }
 
