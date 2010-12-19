@@ -8,11 +8,6 @@ plugin.init = function(glob) {
   plugin.version = plugin.major + "." + plugin.minor + " (10 Jun 2008)";
   plugin.description = "List tabs in a tree";
 
-  plugin.hooks = [];
-  plugin.tags = [];
-  plugin.nodes = [];
-  plugin.decorations = [];
-
   plugin.prefary = plugin.prefary.concat([
     ["showIcons", "true"],["treeAtLeft","true"]
   ]);
@@ -30,6 +25,8 @@ plugin.init = function(glob) {
 }
 
 plugin.enable = function() {
+  plugin.clearStates();
+
   var stylesheet = document.createProcessingInstruction("xml-stylesheet",
     'href="' + plugin.cwd + 'style.css"');
   document.insertBefore(stylesheet, document.firstChild);
@@ -190,6 +187,8 @@ plugin.disable = function() {
       node.parentNode.removeChild(node);
     }
   });
+  plugin.clearStates();
+
   delete client.menuSpecs[plugin.contextId];
   client.updateMenus();
   return true;
@@ -252,6 +251,13 @@ plugin.appendNode = function(node, under) {
   }
   under.appendChild(node);
   plugin.nodes.push(node);
+}
+
+plugin.clearStates = function() {
+  plugin.decorations = [];
+  plugin.hooks = [];
+  plugin.tags = [];
+  plugin.nodes = [];
 }
 
 // --- helpers for maintaining representation of views in the tree ---
