@@ -227,8 +227,10 @@ plugin.decorateFunction = function(object, functionName, newFunction) {
     functionName: functionName, 
     originalFunction: originalFunction
   });
-  object[functionName] = function(arguments) {
-    newFunction(originalFunction, arguments); 
+  object[functionName] = function() {
+    return newFunction.apply(object,
+      [originalFunction].concat(Array.prototype.slice.call(arguments))
+    ); 
   }
 }
 
