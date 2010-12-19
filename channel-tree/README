@@ -35,6 +35,8 @@ BUGS
   is resized to make the tree smaller
 - Width of treeview is not persisted
 - Treeitems at top level are displayed as having children even if they don't
+- If userlist is moved while the plugin is enabled, then disabling the plugin
+  does not make the channel tree go away
 
 AUTHOR
 
