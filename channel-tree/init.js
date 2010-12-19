@@ -29,8 +29,6 @@ plugin.init = function(glob) {
   return "OK";
 }
 
-plugin.startup = true;
-
 plugin.enable = function() {
   var stylesheet = document.createProcessingInstruction("xml-stylesheet",
     'href="' + plugin.cwd + 'style.css"');
@@ -66,7 +64,6 @@ plugin.enable = function() {
 
   var box = document.getElementById("tabpanels-contents-box");
   plugin.putTree(splitter,tree,box);
-  plugin.startup = false;
 
   // add existing tabs into tree
   client.viewsArray.forEach(function(v) {
@@ -244,7 +241,7 @@ plugin.insertNode = function(node, under, before) {
     existing.parentNode.removeChild(existing);
   }
   under.insertBefore(node, before);
-  if(plugin.startup) plugin.nodes.push(node);
+  plugin.nodes.push(node);
 }
 
 plugin.appendNode = function(node, under) {
@@ -254,7 +251,7 @@ plugin.appendNode = function(node, under) {
     existing.parentNode.removeChild(existing);
   }
   under.appendChild(node);
-  if(plugin.startup) plugin.nodes.push(node);
+  plugin.nodes.push(node);
 }
 
 // --- helpers for maintaining representation of views in the tree ---
