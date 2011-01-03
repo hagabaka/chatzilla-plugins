@@ -21,6 +21,73 @@ plugin.init = function(glob) {
     }
   }
 
+  channelTreeIsEnabled = function(){
+    return plugin.enabled;
+  };
+
+  channelTreeAbleCMD = function(){
+    dispatch((channelTreeIsEnabled()?"dis":"en")+"able-plugin channel-tree");
+  };
+
+  channelTreeIsTreeAtLeft = function(){
+    return plugin.prefs['treeAtLeft'] == "true";
+  };
+
+  channelTreeSwitchSideCMD = function(){
+    dispatch("plugin-pref channel-tree treeAtLeft "
+      + (channelTreeIsTreeAtLeft()?"false":"true"));
+  };
+
+  channelTreeIsShowIcons = function(){
+    return plugin.prefs['showIcons'] == "true";
+  };
+
+  channelTreeShowHideIconsCMD = function(){
+    dispatch("plugin-pref channel-tree showIcons "
+      + (channelTreeIsShowIcons()?"false":"true"));
+  };
+
+  client.menuSpecs["popup:channel-tree"] = {
+    label: "Channel Tree",
+    items:
+    [
+      ["channel-tree-enable-disable",
+        {
+          type: "checkbox",
+          label: "Enable Channel Tree",
+          checkedif: "channelTreeIsEnabled()"
+        }
+      ],
+      ["-"],
+      ["channel-tree-tree-at-left",
+        {
+          type: "checkbox",
+          label: "Display the Channel Tree on the Left",
+          checkedif: "channelTreeIsTreeAtLeft()",
+          enabledif: "channelTreeIsEnabled()"
+        }
+      ],
+      ["channel-tree-show-icons",
+        {
+          type: "checkbox",
+          label: "Show View Type Icons",
+          checkedif: "channelTreeIsShowIcons()",
+          enabledif: "channelTreeIsEnabled()"
+        }
+      ]
+    ]
+  };
+
+  client.commandManager.defineCommands(
+    [["channel-tree-enable-disable", channelTreeAbleCMD, 0, ""]]);
+  client.commandManager.defineCommands(
+    [["channel-tree-tree-at-left", channelTreeSwitchSideCMD, 0, ""]]);
+  client.commandManager.defineCommands(
+    [["channel-tree-show-icons", channelTreeShowHideIconsCMD, 0, ""]]);
+
+  client.menuSpecs["mainmenu:view"].items.push(["-"],[">popup:channel-tree"]);
+  client.updateMenus();
+
   return "OK";
 }
 
@@ -116,7 +183,7 @@ plugin.enable = function() {
     },
     items: client.menuSpecs["context:tab"].items}
   tree.setAttribute("context", plugin.contextId);
-  client.updateMenus();
+  setTimeout("client.updateMenus()",0);
 
   // decorate setTabState function to make it update property on tree item
   plugin.decorateFunction(window, "setTabState",
@@ -190,7 +257,7 @@ plugin.disable = function() {
   plugin.clearStates();
 
   delete client.menuSpecs[plugin.contextId];
-  client.updateMenus();
+  setTimeout("client.updateMenus()",0);
   return true;
 }
 
