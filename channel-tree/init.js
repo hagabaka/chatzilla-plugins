@@ -148,6 +148,15 @@ plugin.enable = function() {
       if(!o.treeItemNode) return;
       // only delete from tree when o is a child node or it has no children
       if(plugin.hasNoChildrenInTree(o)) {
+        if(o.treeItemNode.parentNode.childNodes.length<2){
+          var parent = o.treeItemNode.parentNode;
+          while(parent && parent.nodeName!="treeitem"){
+            parent = parent.parentNode;
+          };
+          if(parent){
+            parent.removeAttribute("container");
+          };
+        };
         o.treeItemNode.parentNode.removeChild(o.treeItemNode);
         delete o.treeItemNode;
         if("childrenNode" in o) delete o.treeChildrenNode;
@@ -363,6 +372,11 @@ plugin.addToTree = function(o, at) {
     treeRow.appendChild(treeCell);
 
     at.appendChild(treeItem);
+
+    if(at.parentNode.nodeName=="treeitem"){
+      at.parentNode.setAttribute("container", "true");
+      at.parentNode.setAttribute("open", "true");
+    };
   }
   // if the tree item is already there, associate it with the object
   plugin.tagObject(o, "treeItemNode", treeItem);
@@ -376,8 +390,6 @@ plugin.addToTree = function(o, at) {
 // o.treeChildrenNode is set to the treerows under the added object, where children can be added
 plugin.addToTreeAsParent = function(o) {
   var treeItem = plugin.addToTree(o, plugin.treeChildrenNode);
-  treeItem.setAttribute("container", "true");
-  treeItem.setAttribute("open", "true");
   var treeChildrenId = treeItem.getAttribute("id") + "-treechildren";
   var treeChildren = document.getElementById(treeChildrenId);
   if(!treeChildren) {
