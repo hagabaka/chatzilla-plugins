@@ -236,6 +236,12 @@ plugin.enable = function() {
       userlist.view = client.currentObject.userList;
   });
 
+  channelTreeWorkAround = function(){
+    plugin.tree.treeBoxObject.clearStyleAndImageCaches();
+    plugin.tree.focus();
+  };
+  setTimeout("channelTreeWorkAround()",300);
+
   return true;
 }
 
