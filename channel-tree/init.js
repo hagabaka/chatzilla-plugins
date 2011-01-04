@@ -9,7 +9,7 @@ plugin.init = function(glob) {
   plugin.description = "List tabs in a tree";
 
   plugin.prefary = plugin.prefary.concat([
-    ["showIcons", "true"],["treeAtLeft","true"]
+    ["showIcons", "true"],["treeAtLeft","true"],["treeWidth","166"]
   ]);
 
   plugin.onPrefChanged = function(name, oldValue, newValue) {
@@ -18,6 +18,9 @@ plugin.init = function(glob) {
     }
     else if(name == "treeAtLeft") {
       plugin.applyTreeSidePreference();
+    }
+    else if(name == "treeWidth") {
+      plugin.applyTreeWidthPreference();
     }
   }
 
@@ -109,7 +112,7 @@ plugin.enable = function() {
   tree.setAttribute("id", "channel-tree");
   tree.setAttribute("hidecolumnpicker", "true");
   tree.setAttribute("seltype", "single");
-  tree.setAttribute("width", "166");
+  tree.setAttribute("width", plugin.prefs["treeWidth"]);
   plugin.tree = tree;
   plugin.applyShowIconPreference();
 
@@ -168,6 +171,13 @@ plugin.enable = function() {
       var o = e.view;
       plugin.handleNewView(o);
       plugin.setCurrentView(o);
+    }, false);
+
+  // save the current width of the treeview
+  splitter.addEventListener("command",
+    function(e){
+      dispatch("plugin-pref channel-tree treeWidth "
+        + plugin.tree.width.toString());
     }, false);
 
   // switch view when tree item is selected
@@ -510,6 +520,10 @@ plugin.applyTreeSidePreference = function(){
   var tree = document.getElementById("channel-tree");
   var box = document.getElementById("tabpanels-contents-box");
   plugin.putTree(splitter,tree,box);
+}
+
+plugin.applyTreeWidthPreference = function(){
+  plugin.tree.setAttribute("width",plugin.prefs["treeWidth"]);
 }
 
 plugin.putTree = function(splitter,tree,box){

@@ -24,10 +24,6 @@ TODO
 - Sort tree items by view type
 - Allow tree items for hidden views be styled
 
-BUGS
-
-- Width of treeview is not persisted
-
 AUTHOR
 
 Yaohan Chen "hagabaka" <yaohan.chen@gmail.com>
