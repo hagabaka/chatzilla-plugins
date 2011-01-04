@@ -366,6 +366,25 @@ plugin.handleNewView = function(o) {
   }
 }
 
+plugin.addSortNameToTreeItem = function(o,treeItem){
+  var TYPElabel;
+  switch(o.TYPE){
+    case "IRCClient": TYPElabel = "a"; break;
+    case "IRCNetwork": TYPElabel = "b"; break;
+    case "IRCChannel": TYPElabel = "c"; break;
+    case "IRCUser": TYPElabel = "d"; break;
+    case "IRCDCCChat": TYPElabel = "e"; break;
+    case "IRCDCCFileTransfer": TYPElabel = "f"; break;
+    default :  TYPElabel = "g"; break;
+  };
+  treeItem.sortName = (TYPElabel + o.viewName).toLowerCase();
+  return treeItem.sortName; 
+}
+
+plugin.strcmp = function(str1,str2){
+  return ((str1 == str2)?0:((str1 > str2)?1:-1));
+}
+
 // add an entry to the tree for the object, under the treerows node specified by "at"
 plugin.addToTree = function(o, at) {
   var id = plugin.getIdForObject(o);
@@ -381,7 +400,16 @@ plugin.addToTree = function(o, at) {
     treeItem.appendChild(treeRow);
     treeRow.appendChild(treeCell);
 
-    at.appendChild(treeItem);
+    var sortName = plugin.addSortNameToTreeItem(o,treeItem);
+    var siblingItem = at.firstChild;
+    while(siblingItem && (plugin.strcmp(siblingItem.sortName,sortName)<0)){
+      siblingItem = siblingItem.nextSibling;
+    };
+    if(siblingItem){
+      at.insertBefore(treeItem,siblingItem);
+    }else{
+      at.appendChild(treeItem);
+    };
 
     if(at.parentNode.nodeName=="treeitem"){
       at.parentNode.setAttribute("container", "true");

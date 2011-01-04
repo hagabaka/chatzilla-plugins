@@ -21,7 +21,6 @@ PREFERENCES
 TODO
 
 - Use tree-utils instead of DOM tree
-- Sort tree items by view type
 - Allow tree items for hidden views be styled
 
 AUTHOR
