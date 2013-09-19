@@ -11,6 +11,10 @@ to connect/join on start up, just like with the tabs. Unlike tabs, when you
 open many channels, their names won't be squished into one unintelligible
 horizontal row.
 
+License: `CC BY 3.0`_
+
+.. _`CC BY 3.0`: http://creativecommons.org/licenses/by/3.0/
+
 To Install a Plugin
 -------------------
 "Automatically"
