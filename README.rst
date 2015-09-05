@@ -22,6 +22,13 @@ To Install a Plugin
 Zip the plugin directory, use ChatZilla's "Install Plugin" menu, and select
 the zip.
 
+Please make sure that the zip file contains `init.js` and oher plugin files at its
+top level. The zip file you download from GitHub does not work because it has
+the channel-tree sub directory and the plugin files under it. Here is a working
+`zip file`_ for the channel-tree plugin.
+
+.. _`zip file`: https://www.dropbox.com/s/2adtg3upaal5o5i/channel-tree.zip
+
 "Manually"
 ..........
 Place plugin directory in chatzilla/scripts in your ChatZilla profile
